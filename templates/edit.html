@@ -1,0 +1,14 @@
+<!DOCTYPE html> 
+    <html> 
+    <head> 
+	<title>{{ filename }} - Edit</title> 
+    </head> 
+    <body> 
+<a href="/view/{{ filename | urlencode }}">view</a>
+<p>
+<textarea cols="120" style="max-width:100%;">
+{{ content | safe }}
+    </textarea>
+	<button>Save</button>
+	</body> 
+    </html>     """ 

@@ -1,0 +1,12 @@
+<!DOCTYPE html> 
+    <html> 
+    <head> 
+	<title>{{ filename }} - View</title> 
+    </head> 
+    <body> 
+<a href="/edit/{{ filename | urlencode }}">edit</a>
+<p>
+
+{{ content | safe }} 
+    </body> 
+    </html>     """ 
