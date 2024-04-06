@@ -6,9 +6,11 @@
     <body> 
 <a href="/view/{{ filename | urlencode }}">view</a>
 <p>
-<textarea cols="120" style="max-width:100%;">
+<form method="post">
+<textarea name="text" cols="120" style="max-width:100%;">
 {{ content | safe }}
     </textarea>
-	<button>Save</button>
+	<input type="submit" value="SAVE" name="save"/>
+	</form>
 	</body> 
     </html>     """ 

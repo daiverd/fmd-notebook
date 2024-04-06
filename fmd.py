@@ -1,9 +1,9 @@
-from flask import Flask, request, render_template, render_template_string 
+from flask import Flask, request, redirect, render_template, render_template_string 
 from pathlib import Path
 import markdown 
 import os 
 
-base_dir = Path(Path(__file__).parent, "markdown_files")
+base_dir = Path(Path(__file__).parent, "markdown")
 
 app = Flask(__name__) 
 
@@ -68,20 +68,26 @@ def view_markdown_file(filename):
          # Use a simple HTML template and insert the HTML content 
     return render_template("view.html", content=content, filename=filename) 
 
-@app.route('/edit/<path:filename>') 
+@app.route('/edit/<path:filename>', methods=['GET', 'POST']) 
 def edit_markdown_file(filename): 
     content = "File not found." 
     # Construct file path 
     file_path = Path(base_dir, filename)
-         # Check if file exists 
-    if is_safe_path(file_path) and os.path.isfile(file_path): 
-        # Read the Markdown file 
-        with open(file_path, 'r') as f: 
-            content = f.read() 
-    else: 
-        content = "# new file" 
-         # Use a simple HTML template and insert the HTML content 
-    return render_template("edit.html", content=content, filename=filename) 
+    if request.method == 'GET':
+             # Check if file exists 
+        if is_safe_path(file_path) and os.path.isfile(file_path): 
+            # Read the Markdown file 
+            with open(file_path, 'r') as f: 
+                content = f.read() 
+        else: 
+            content = "# new file" 
+             # Use a simple HTML template and insert the HTML content 
+        return render_template("edit.html", content=content, filename=filename) 
+    else:
+        content = request.form.get("text")
+        with open(file_path, 'w') as f:
+            f.write(content)
+        return redirect(f'/view/{filename}')
 
 if __name__ == '__main__': 
     app.run(debug=True)
