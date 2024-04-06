@@ -1,9 +1,26 @@
 from flask import Flask, request, redirect, render_template, render_template_string 
 from pathlib import Path
-import markdown 
-import os 
+from dulwich.repo import Repo
+import markdown, os, shutil
 
 base_dir = Path(Path(__file__).parent, "markdown")
+repo = None
+
+def setup():
+    print("Running setup...")
+    if not base_dir.exists():
+        base_dir.mkdir()
+        print(f"Creating {base_dir}")
+    if not Path(base_dir, ".git").exists():
+        repo = Repo.init(base_dir)
+        print(f"Initializing git repo in {base_dir}")
+    else:
+        repo = Repo(base_dir)
+        print(f"Found git repo in {base_dir}")
+    if not Path(base_dir, "index.md").exists():
+        shutil.copy("templates/index.md", base_dir)
+        print("Copied index template")
+    print("Setup completed.")
 
 app = Flask(__name__) 
 
@@ -90,4 +107,5 @@ def edit_markdown_file(filename):
         return redirect(f'/view/{filename}')
 
 if __name__ == '__main__': 
+    setup()
     app.run(debug=True)
