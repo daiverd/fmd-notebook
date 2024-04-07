@@ -8,6 +8,7 @@ base_dir = Path(Path(__file__).parent, "markdown")
 repo = None
 
 def setup():
+    global repo
     print("Running setup...")
     if not base_dir.exists():
         base_dir.mkdir()
@@ -115,6 +116,8 @@ def edit_markdown_file(filename):
         content = request.form.get("text")
         with open(file_path, 'w') as f:
             f.write(content)
+        repo.stage([filename.encode()])
+        repo.do_commit(message=f'Updated {file_path}'.encode())
         return redirect(f'/view/{filename}')
 
 @app.route('/view/today')
