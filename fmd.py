@@ -2,7 +2,7 @@ from flask import Flask, request, redirect, render_template, render_template_str
 from tools import convert
 from pathlib import Path
 from dulwich.repo import Repo
-import os, shutil
+import os, shutil, datetime
 
 base_dir = Path(Path(__file__).parent, "markdown")
 repo = None
@@ -64,7 +64,7 @@ def page_not_found(e):
     return '404 bad path!', 404
 
 @app.route('/') 
-def index(): 
+def index():
     files = get_markdown_files() 
     links = '' 
     for file in files: 
@@ -116,6 +116,17 @@ def edit_markdown_file(filename):
         with open(file_path, 'w') as f:
             f.write(content)
         return redirect(f'/view/{filename}')
+
+@app.route('/view/today')
+def view_today():
+  today = str(datetime.date.today())
+  return redirect(f'/view/{today}')
+
+@app.route('/view/this_week')
+def view_this_week():
+  today = datetime.date.today()
+  year, week_number, _ = today.isocalendar()
+  return redirect(f'/view/{year}-{week_number}')
 
 if __name__ == '__main__': 
     setup()
