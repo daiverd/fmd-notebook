@@ -66,13 +66,8 @@ def page_not_found(e):
 
 @app.route('/') 
 def index():
-    files = get_markdown_files() 
-    links = '' 
-    for file in files: 
-        # Create a link for each file 
-        links += f'<li><a href="/view/{file}">{file}</a></li>' 
-             # Render an HTML list of links
-    return f"""<html>                 <head><title>Markdown Files</title></head>                 <body>                     <h1>Available Markdown Files</h1>                     <ul>{links}</ul>                 </body>                </html>""" 
+    files = list(get_markdown_files())
+    return render_template("index.html", files=files)
 
 @app.route('/view/<path:filename>') 
 def view_markdown_file(filename): 

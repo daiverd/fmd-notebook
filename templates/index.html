@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+<h1>Index</h1>
+<ul>
+{% for file in files %}
+<li>
+<a href="/view/{{ file | urlencode }}">{{ file }}</a>
+</li>
+{% endfor %}
+</ul>
+{% endblock %}

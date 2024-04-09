@@ -2,7 +2,14 @@
     <html> 
     <head> 
 	<title>{% block title %}{% endblock %} - FMD-Notebook</title> 
-    </head> 
+      <style>
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+	</head> 
 {% include "header.html" %}
     <body> 
 {% block content %}
