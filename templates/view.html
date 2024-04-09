@@ -1,12 +1,7 @@
-<!DOCTYPE html> 
-    <html> 
-    <head> 
-	<title>{{ filename }} - View</title> 
-    </head> 
-    <body> 
+{% extends "base.html" %}
+{% block title %}{{ filename }} - View {% endblock %}
+{% block content %}
 <a href="/edit/{{ filename | urlencode }}">edit</a>
-<p>
-
+<h1>{{ filename }}</h1>
 {{ content | safe }} 
-    </body> 
-    </html>     """ 
+    {% endblock %}

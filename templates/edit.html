@@ -1,16 +1,12 @@
-<!DOCTYPE html> 
-    <html> 
-    <head> 
-	<title>{{ filename }} - Edit</title> 
-    </head> 
-    <body> 
+{% extends "base.html" %}
+{% block title %}{{ filename }} - Edit {% endblock %}
+{% block content %}
 <a href="/view/{{ filename | urlencode }}">view</a>
-<p>
+<h1>Editing "{{ filename }}"</h1>
 <form method="post">
 <textarea name="text" cols="120" style="max-width:100%;">
 {{ content | safe }}
     </textarea>
 	<input type="submit" value="SAVE" name="save"/>
 	</form>
-	</body> 
-    </html>     """ 
+	{% endblock %}
