@@ -115,7 +115,7 @@ def edit_markdown_file(filename):
     else:
         content = request.form.get("text")
         with open(file_path, 'w') as f:
-            f.write(content)
+            f.writelines(content.split("\n"))
         repo.stage([filename.encode()])
         repo.do_commit(message=f'Updated {file_path}'.encode())
         return redirect(f'/view/{filename}')
