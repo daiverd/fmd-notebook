@@ -4,7 +4,7 @@
 <a href="/view/{{ filename | urlencode }}">view</a>
 <h1>Editing "{{ filename }}"</h1>
 <form method="post">
-<textarea name="text" cols="120" style="max-width:100%;">
+<textarea name="text" cols="120" style="max-width:100%;" autofocus>
 {{ content | safe }}
     </textarea>
 	<input type="submit" value="SAVE" name="save"/>
