@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template, render_template_string, abort
+from werkzeug.security import safe_join
 from tools import convert
 from pathlib import Path
 from dulwich.repo import Repo
@@ -28,39 +29,16 @@ def setup():
 app = Flask(__name__)
 setup()
 
-# Function to get the list of markdown files 
+def safe_file_path(filename):
+    """Join filename under base_dir, returning None if the result would escape."""
+    joined = safe_join(str(base_dir), filename)
+    return Path(joined) if joined is not None else None
+
 def get_markdown_files(directory=""):
-  """
-  Retrieves a glob object containing markdown files from the specified directory using pathlib.
-  """
-
-  dir_path = Path(base_dir, directory)
-
-  # Handle potential errors during path construction
-  if not is_safe_path(dir_path):
-    raise ValueError(str(dir_path))
-
-  if not dir_path.is_absolute():
-    raise ValueError("Directory path must be absolute")
-
-  # Use path.glob to find all '.md' files (returns a generator)
-  return [path.relative_to(base_dir) for path in dir_path.glob("*.md")]
-
-def is_safe_path(path):
-  """
-  Checks if a path is within the specified base directory using pathlib.
-  """
-
-  path_obj = Path(path)
-
-  # Handle potential errors during path construction
-  if not base_dir.is_absolute():
-    raise ValueError("Base directory path must be absolute")
-  if not path_obj.is_absolute():
-    raise ValueError("Input path must be absolute")
-
-  # Check if the resolved path is within the base directory
-  return path_obj == base_dir or path_obj.is_relative_to(base_dir)
+    dir_path = safe_file_path(directory) if directory else base_dir
+    if dir_path is None:
+        abort(404)
+    return [path.relative_to(base_dir) for path in dir_path.glob("*.md")]
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -71,44 +49,33 @@ def index():
     files = list(get_markdown_files())
     return render_template("index.html", files=files)
 
-@app.route('/view/<path:filename>') 
-def view_markdown_file(filename): 
+@app.route('/view/<path:filename>')
+def view_markdown_file(filename):
     if not filename.endswith(".md"):
         return redirect(f'/view/{filename}.md')
-    content = "File not found." 
-    # Construct file path 
-    file_path = Path(base_dir, filename)
-         # Check if file exists 
-    if not is_safe_path(file_path):
+    file_path = safe_file_path(filename)
+    if file_path is None:
         abort(404)
-    if file_path.is_file():
-        # Read the Markdown file 
-        with open(file_path, 'r') as f: 
-            markdown_content = f.read() 
-            # Convert Markdown to HTML 
-            content = convert(markdown_content) 
-    else: 
+    if not file_path.is_file():
         return redirect(f'/edit/{filename}')
-         # Use a simple HTML template and insert the HTML content 
-    return render_template("view.html", content=content, filename=filename) 
+    with open(file_path, 'r') as f:
+        content = convert(f.read())
+    return render_template("view.html", content=content, filename=filename)
 
-@app.route('/edit/<path:filename>', methods=['GET', 'POST']) 
-def edit_markdown_file(filename): 
+@app.route('/edit/<path:filename>', methods=['GET', 'POST'])
+def edit_markdown_file(filename):
     if not filename.endswith(".md"):
         return redirect(f'/edit/{filename}.md')
-    content = "File not found." 
-    # Construct file path 
-    file_path = Path(base_dir, filename)
+    file_path = safe_file_path(filename)
+    if file_path is None:
+        abort(404)
     if request.method == 'GET':
-             # Check if file exists 
-        if is_safe_path(file_path) and os.path.isfile(file_path): 
-            # Read the Markdown file 
-            with open(file_path, 'r') as f: 
-                content = f.read() 
-        else: 
-            content = "# new file" 
-             # Use a simple HTML template and insert the HTML content 
-        return render_template("edit.html", content=content, filename=filename) 
+        if file_path.is_file():
+            with open(file_path, 'r') as f:
+                content = f.read()
+        else:
+            content = "# new file"
+        return render_template("edit.html", content=content, filename=filename)
     else:
         content = request.form.get("text")
         with open(file_path, 'w', newline='\n') as f:
