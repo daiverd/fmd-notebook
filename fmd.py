@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, render_template_string 
+from flask import Flask, request, redirect, render_template, render_template_string, abort
 from tools import convert
 from pathlib import Path
 from dulwich.repo import Repo
@@ -80,7 +80,7 @@ def view_markdown_file(filename):
     file_path = Path(base_dir, filename)
          # Check if file exists 
     if not is_safe_path(file_path):
-        raise file_not_found()
+        abort(404)
     if file_path.is_file():
         # Read the Markdown file 
         with open(file_path, 'r') as f: 
