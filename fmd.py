@@ -24,7 +24,8 @@ def setup():
         print("Copied index template")
     print("Setup completed.")
 
-app = Flask(__name__) 
+app = Flask(__name__)
+setup()
 
 # Function to get the list of markdown files 
 def get_markdown_files(directory=""):
@@ -126,6 +127,5 @@ def view_this_week():
   year, week_number, _ = today.isocalendar()
   return redirect(f'/view/{year}-{week_number}')
 
-if __name__ == '__main__': 
-    setup()
+if __name__ == '__main__':
     app.run(debug=True)
