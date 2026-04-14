@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, render_template, render_template_str
 from tools import convert
 from pathlib import Path
 from dulwich.repo import Repo
+from dulwich import porcelain
 import os, shutil, datetime
 
 base_dir = Path(Path(__file__).parent, "markdown")
@@ -112,8 +113,8 @@ def edit_markdown_file(filename):
         content = request.form.get("text")
         with open(file_path, 'w', newline='\n') as f:
             f.write(content.replace("\r\n", "\n"))
-        repo.stage([filename.encode()])
-        repo.do_commit(message=f'Updated {file_path}'.encode())
+        porcelain.add(repo=repo, paths=[str(file_path)])
+        porcelain.commit(repo=repo, message=f'Updated {file_path}'.encode())
         return redirect(f'/view/{filename}')
 
 @app.route('/view/today')
