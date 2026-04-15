@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, render_template_string, abort
+from flask import Flask, request, redirect, render_template, render_template_string, abort, url_for
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import safe_join
 from tools import convert
@@ -41,7 +41,7 @@ def get_markdown_files(directory=""):
     dir_path = safe_file_path(directory) if directory else base_dir
     if dir_path is None:
         abort(404)
-    return [path.relative_to(base_dir).as_posix() for path in dir_path.rglob("*.md")]
+    return [path.relative_to(base_dir).with_suffix("").as_posix() for path in dir_path.rglob("*.md")]
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -54,22 +54,22 @@ def index():
 
 @app.route('/view/<path:filename>')
 def view_markdown_file(filename):
-    if not filename.endswith(".md"):
-        return redirect(f'/view/{filename}.md')
-    file_path = safe_file_path(filename)
+    if filename.endswith(".md"):
+        return redirect(url_for("view_markdown_file", filename=filename[:-3]))
+    file_path = safe_file_path(filename + ".md")
     if file_path is None:
         abort(404)
     if not file_path.is_file():
-        return redirect(f'/edit/{filename}')
+        return redirect(url_for("edit_markdown_file", filename=filename))
     with open(file_path, 'r') as f:
         content = convert(f.read())
     return render_template("view.html", content=content, filename=filename)
 
 @app.route('/edit/<path:filename>', methods=['GET', 'POST'])
 def edit_markdown_file(filename):
-    if not filename.endswith(".md"):
-        return redirect(f'/edit/{filename}.md')
-    file_path = safe_file_path(filename)
+    if filename.endswith(".md"):
+        return redirect(url_for("edit_markdown_file", filename=filename[:-3]))
+    file_path = safe_file_path(filename + ".md")
     if file_path is None:
         abort(404)
     if request.method == 'GET':
@@ -86,7 +86,7 @@ def edit_markdown_file(filename):
             f.write(content.replace("\r\n", "\n"))
         porcelain.add(repo=repo, paths=[str(file_path)])
         porcelain.commit(repo=repo, message=f'Updated {file_path}'.encode())
-        return redirect(f'/view/{filename}')
+        return redirect(url_for("view_markdown_file", filename=filename))
 
 @app.route('/view/today')
 def view_today():

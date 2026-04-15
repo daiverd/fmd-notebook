@@ -7,7 +7,7 @@ from mdit_py_plugins.footnote import footnote_plugin
 WIKILINK_RE = re.compile(r"\[\[([^\[\]|]+)(?:\|([^\[\]]+))?\]\]")
 
 
-def wikilinks_plugin(md, base_url="/view/", suffix=".md"):
+def wikilinks_plugin(md, base_url="/view/", suffix=""):
     """Parse [[Target]] and [[Target|Label]] into links to base_url+Target+suffix."""
 
     def rule(state, silent):
