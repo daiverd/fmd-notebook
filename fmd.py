@@ -1,12 +1,18 @@
-from flask import Flask, request, redirect, render_template, render_template_string, abort, url_for
+"""Flask Markdown Notebook: render and edit notes under ``markdown/``,
+auto-committing each save to a self-contained dulwich repo."""
+
+import secrets
+import shutil
+from datetime import date, timedelta
+from pathlib import Path
+
+from dulwich import porcelain
+from dulwich.repo import Repo
+from flask import Flask, abort, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import safe_join
+
 from tools import convert
-from pathlib import Path
-from dulwich.repo import Repo
-from dulwich import porcelain
-import os, secrets, shutil
-from datetime import date, timedelta
 
 base_dir = Path(Path(__file__).parent, "markdown")
 repo = None
