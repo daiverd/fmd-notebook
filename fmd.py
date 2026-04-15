@@ -41,7 +41,7 @@ def get_markdown_files(directory=""):
     dir_path = safe_file_path(directory) if directory else base_dir
     if dir_path is None:
         abort(404)
-    return [path.relative_to(base_dir) for path in dir_path.glob("*.md")]
+    return [path.relative_to(base_dir).as_posix() for path in dir_path.rglob("*.md")]
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -81,6 +81,7 @@ def edit_markdown_file(filename):
         return render_template("edit.html", content=content, filename=filename)
     else:
         content = request.form.get("text")
+        file_path.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path, 'w', newline='\n') as f:
             f.write(content.replace("\r\n", "\n"))
         porcelain.add(repo=repo, paths=[str(file_path)])

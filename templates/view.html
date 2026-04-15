@@ -2,7 +2,7 @@
 {% block title %}{{ filename }} - View {% endblock %}
 {% block content %}
 <h1>{{ filename }}</h1>
-<a href="/edit/{{ filename | urlencode }}">edit</a>
+<a href="{{ url_for('edit_markdown_file', filename=filename) }}">edit</a>
 <p>
 {{ content | safe }} 
     {% endblock %}
