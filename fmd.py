@@ -5,7 +5,8 @@ from tools import convert
 from pathlib import Path
 from dulwich.repo import Repo
 from dulwich import porcelain
-import os, secrets, shutil, datetime
+import os, secrets, shutil
+from datetime import date, timedelta
 
 base_dir = Path(Path(__file__).parent, "markdown")
 repo = None
@@ -88,16 +89,34 @@ def edit_markdown_file(filename):
         porcelain.commit(repo=repo, message=f'Updated {file_path}'.encode())
         return redirect(url_for("view_markdown_file", filename=filename))
 
-@app.route('/view/today')
-def view_today():
-  today = str(datetime.date.today())
-  return redirect(f'/view/{today}')
+def _date_stem(d):
+    return d.isoformat()
 
-@app.route('/view/this_week')
-def view_this_week():
-  today = datetime.date.today()
-  year, week_number, _ = today.isocalendar()
-  return redirect(f'/view/{year}-{week_number}')
+def _week_stem(d):
+    y, w, _ = d.isocalendar()
+    return f"{y}-W{w:02d}"
+
+_SHORTCUTS = {
+    "yesterday": lambda: _date_stem(date.today() - timedelta(days=1)),
+    "today":     lambda: _date_stem(date.today()),
+    "tomorrow":  lambda: _date_stem(date.today() + timedelta(days=1)),
+    "last_week": lambda: _week_stem(date.today() - timedelta(weeks=1)),
+    "this_week": lambda: _week_stem(date.today()),
+    "next_week": lambda: _week_stem(date.today() + timedelta(weeks=1)),
+}
+
+_SHORTCUT_RULE = "<any(yesterday,today,tomorrow,last_week,this_week,next_week):shortcut>"
+
+@app.route(f"/view/{_SHORTCUT_RULE}")
+@app.route(f"/view/{_SHORTCUT_RULE}.md")
+@app.route(f"/view/<path:project>/{_SHORTCUT_RULE}")
+@app.route(f"/view/<path:project>/{_SHORTCUT_RULE}.md")
+def view_date_shortcut(shortcut, project=None):
+    stem = _SHORTCUTS[shortcut]()
+    filename = f"{project}/{stem}" if project else stem
+    if safe_file_path(filename + ".md") is None:
+        abort(404)
+    return redirect(url_for("view_markdown_file", filename=filename))
 
 if __name__ == '__main__':
     app.run(debug=False)
