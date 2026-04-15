@@ -1,10 +1,11 @@
 from flask import Flask, request, redirect, render_template, render_template_string, abort
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import safe_join
 from tools import convert
 from pathlib import Path
 from dulwich.repo import Repo
 from dulwich import porcelain
-import os, shutil, datetime
+import os, secrets, shutil, datetime
 
 base_dir = Path(Path(__file__).parent, "markdown")
 repo = None
@@ -27,6 +28,8 @@ def setup():
     print("Setup completed.")
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = secrets.token_hex(32)
+CSRFProtect(app)
 setup()
 
 def safe_file_path(filename):
