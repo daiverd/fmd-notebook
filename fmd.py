@@ -96,4 +96,4 @@ def view_this_week():
   return redirect(f'/view/{year}-{week_number}')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
