@@ -17,7 +17,7 @@ from tools import convert
 base_dir = Path(Path(__file__).parent, "markdown")
 repo = None
 
-def setup():
+def setup() -> None:
     global repo
     print("Running setup...")
     if not base_dir.exists():
@@ -39,12 +39,12 @@ app.config["SECRET_KEY"] = secrets.token_hex(32)
 CSRFProtect(app)
 setup()
 
-def safe_file_path(filename):
+def safe_file_path(filename: str) -> Path | None:
     """Join filename under base_dir, returning None if the result would escape."""
     joined = safe_join(str(base_dir), filename)
     return Path(joined) if joined is not None else None
 
-def get_markdown_files(directory=""):
+def get_markdown_files(directory: str = "") -> list[str]:
     dir_path = safe_file_path(directory) if directory else base_dir
     if dir_path is None:
         abort(404)
@@ -95,10 +95,10 @@ def edit_markdown_file(filename):
         porcelain.commit(repo=repo, message=f'Updated {file_path}'.encode())
         return redirect(url_for("view_markdown_file", filename=filename))
 
-def _date_stem(d):
+def _date_stem(d: date) -> str:
     return d.isoformat()
 
-def _week_stem(d):
+def _week_stem(d: date) -> str:
     y, w, _ = d.isocalendar()
     return f"{y}-W{w:02d}"
 
