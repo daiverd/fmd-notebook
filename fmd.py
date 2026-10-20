@@ -14,7 +14,8 @@ from werkzeug.security import safe_join
 
 from tools import convert
 
-base_dir = Path(Path(__file__).parent, "markdown")
+app_dir = Path(__file__).parent
+base_dir = app_dir / "markdown"
 repo = None
 
 def setup() -> None:
@@ -30,12 +31,20 @@ def setup() -> None:
         repo = Repo(base_dir)
         print(f"Found git repo in {base_dir}")
     if not Path(base_dir, "index.md").exists():
-        shutil.copy("templates/index.md", base_dir)
+        shutil.copy(app_dir / "templates" / "index.md", base_dir)
         print("Copied index template")
     print("Setup completed.")
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = secrets.token_hex(32)
+def load_secret_key() -> str:
+    """Persist the key so CSRF tokens in open edit tabs survive a restart."""
+    key_file = app_dir / ".secret_key"
+    if not key_file.exists():
+        key_file.write_text(secrets.token_hex(32))
+        key_file.chmod(0o600)
+    return key_file.read_text().strip()
+
+app.config["SECRET_KEY"] = load_secret_key()
 CSRFProtect(app)
 setup()
 
@@ -56,7 +65,7 @@ def page_not_found(e):
 
 @app.route('/') 
 def index():
-    files = list(get_markdown_files())
+    files = sorted(get_markdown_files())
     return render_template("index.html", files=files)
 
 @app.route('/view/<path:filename>')
@@ -88,6 +97,8 @@ def edit_markdown_file(filename):
         return render_template("edit.html", content=content, filename=filename)
     else:
         content = request.form.get("text")
+        if content is None:
+            abort(400)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path, 'w', newline='\n') as f:
             f.write(content.replace("\r\n", "\n"))

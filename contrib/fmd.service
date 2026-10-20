@@ -1,0 +1,12 @@
+# Install: cp contrib/fmd.service ~/.config/systemd/user/
+#          edit WorkingDirectory, then: systemctl --user enable --now fmd
+[Unit]
+Description=fmd-notebook
+
+[Service]
+WorkingDirectory=%h/src/fmd-notebook
+ExecStart=%h/.local/bin/uv run python fmd.py
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

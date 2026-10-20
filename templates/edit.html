@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}{{ filename }} - Edit {% endblock %}
+{% block title %}{{ filename }} - Edit{% endblock %}
 {% block content %}
 <a href="{{ url_for('view_markdown_file', filename=filename) }}">view</a>
 <h1>Editing "{{ filename }}"</h1>
 <form method="post">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-<textarea name="text" cols="120" style="max-width:100%;" autofocus>
-{{ content }}
-    </textarea>
-	<input type="submit" value="SAVE" name="save"/>
-	</form>
-	{% endblock %}
+<label for="text">Markdown content</label>
+<textarea id="text" name="text" cols="120" rows="30" style="max-width:100%;" autofocus>
+{{ content }}</textarea>
+<input type="submit" value="SAVE" name="save"/>
+</form>
+{% endblock %}

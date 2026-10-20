@@ -1,18 +1,22 @@
-<!DOCTYPE html> 
-    <html> 
-    <head> 
-	<title>{% block title %}{% endblock %} - FMD-Notebook</title> 
-      <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} - FMD-Notebook</title>
+  <style>
     ul {
       list-style-type: none;
       padding: 0;
       margin: 0;
     }
   </style>
-	</head> 
+</head>
+<body>
 {% include "header.html" %}
-    <body> 
+<main>
 {% block content %}
 {% endblock %}
-	</body> 
-    </html>
+</main>
+</body>
+</html>
